@@ -11,6 +11,23 @@
 | جهاز ESP32 | `CPS-Project/esp32/` | الحساس الفعلي في المنطقة A1.1 |
 | فيديوهات التجربة | `samples/` | مقاطع جاهزة تشغلها بنفسك عشان تشوف تحليل الكاميرات |
 
+## طريقتين تشوف فيها راصد
+
+| | 🌐 الموقع التجريبي (أسهل) | 💻 التشغيل على جهازك |
+| --- | --- | --- |
+| **الرابط** | **https://rased-ivory.vercel.app/** | http://localhost:8010 بعد التشغيل ([القسم 1](#1-التشغيل-السريع)) |
+| **البيانات** | **بيانات وهمية للعرض**، لكن الموقع نفسه حقيقي وكل الصفحات تشتغل | بيانات حقيقية: تحليل الكاميرات والفيديوهات، الحوادث، وسجل NODE-04 |
+| **تحتاج تثبّت شي؟** | لا، تفتح الرابط بس | نعم: Python، وتحميل المشروع في VS Code أو أي محرر |
+| **مناسب لـ** | تتعرف على المنصة وتشوف الواجهة بسرعة | تجرب تحليل الكاميرات بالفيديوهات ([القسم 2](#2-فيديوهات-تجربة-تحليل-الكاميرات)) وتربط الحساس |
+
+### بيانات الدخول (نفسها في الطريقتين)
+
+| اسم المستخدم | كلمة المرور |
+| --- | --- |
+| `admin` | `admin12345` |
+
+> هذا دخول تجريبي للعرض فقط، وليس نظام صلاحيات حقيقي.
+
 **المحتويات**
 1. [التشغيل السريع](#1-التشغيل-السريع)
 2. [فيديوهات تجربة تحليل الكاميرات](#2-فيديوهات-تجربة-تحليل-الكاميرات)
@@ -301,6 +318,11 @@ CPS-Project/
 **Rased Platform** is this repository: one platform, one dashboard at http://localhost:8010.
 The CPS backend (port 8001) runs in the background and is read only through the platform; there is
 no separate CPS dashboard. Start with `start-cps.bat`; full guide in [`RUN_FROM_ZERO.md`](RUN_FROM_ZERO.md).
+
+**Two ways to see it:** the demo website **https://rased-ivory.vercel.app/** (a real website with
+fake demo data, nothing to install), or run it locally on your PC (real camera analysis and NODE-04
+data). Sign in to either with username **`admin`** and password **`admin12345`** (a demo sign-in,
+not real access control).
 
 **Demo videos** are in `samples/`. In *Cameras & AI*, use a camera tile's **Attach video** button to
 play `fire_bin_crowd.mp4`, `fire_shop_smoke.mp4`, `crowd_indoor_event.mp4` or `test_scene.mp4` as a
