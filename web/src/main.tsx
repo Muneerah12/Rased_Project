@@ -2,10 +2,12 @@ import { createRoot } from 'react-dom/client';
 import './styles.css';
 import { setTimeBase } from './model/config';
 import { routeApiFetches } from './services/apiBase';
+import { serveDemoCps } from './services/demoCps';
 
 // Sample records are anchored to page-load time until the shared server state arrives.
 setTimeBase(Date.now());
 routeApiFetches();
+serveDemoCps(); // outermost, so it sees the relative /api paths
 import { StoreProvider, UIProvider, useUI } from './state/store';
 import { canSee } from './services/permissions';
 import { DevPanel, Sidebar, Toast, TopBar } from './ui/shell';

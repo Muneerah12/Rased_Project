@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit -p .",
-    "test": "tsx tests/model.test.ts && tsx tests/ai.test.ts && tsx tests/auth.test.ts && tsx tests/cluster.test.ts && tsx tests/geo.test.ts && tsx tests/weather.test.ts && tsx tests/cps.test.ts && tsx tests/cps-branch.test.ts && tsx tests/cps-location-map.test.ts && tsx tests/operational-hvac.test.ts && tsx tests/operational-overview.test.ts && tsx tests/twin.test.ts && tsx tests/simulation-hvac.test.ts && tsx tests/simulation-hvac-branch.test.ts && tsx tests/simulation-hall.test.ts && tsx tests/cps-simulation-zone.test.ts && tsx tests/cps-node-alert.test.ts",
+    "test": "tsx tests/model.test.ts && tsx tests/ai.test.ts && tsx tests/auth.test.ts && tsx tests/cluster.test.ts && tsx tests/geo.test.ts && tsx tests/weather.test.ts && tsx tests/cps.test.ts && tsx tests/cps-branch.test.ts && tsx tests/cps-location-map.test.ts && tsx tests/operational-hvac.test.ts && tsx tests/operational-overview.test.ts && tsx tests/twin.test.ts && tsx tests/simulation-hvac.test.ts && tsx tests/simulation-hvac-branch.test.ts && tsx tests/simulation-hall.test.ts && tsx tests/cps-simulation-zone.test.ts && tsx tests/cps-node-alert.test.ts && tsx tests/demo-cps.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

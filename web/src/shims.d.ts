@@ -37,7 +37,7 @@ declare module 'react-dom/client' {
   export function createRoot(el: Element): { render(node: any): void };
 }
 // Vite build-time variables; undefined when a module runs outside Vite (tsx tests).
-interface ImportMeta { readonly env?: { readonly VITE_API_BASE?: string } }
+interface ImportMeta { readonly env?: { readonly VITE_API_BASE?: string; readonly VITE_DEMO_CPS?: string } }
 declare module '*.webp' { const src: string; export default src }
 declare module '*.png' { const src: string; export default src }
 declare module '*.css' { const css: string; export default css }
