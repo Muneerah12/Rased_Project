@@ -11,6 +11,8 @@
 | جهاز ESP32 | `CPS-Project/esp32/` | الحساس الفعلي في المنطقة A1.1 |
 | فيديوهات التجربة | `samples/` | مقاطع جاهزة تشغلها بنفسك عشان تشوف تحليل الكاميرات |
 
+**النسخة المنشورة للتجربة:** https://rased-ivory.vercel.app (الواجهة على Vercel، والخادم والموديلات على Hugging Face Space `Ahmed014/rased`). طريقة النشر والتحديث في [`deploy/README.md`](deploy/README.md).
+
 **المحتويات**
 1. [التشغيل السريع](#1-التشغيل-السريع)
 2. [فيديوهات تجربة تحليل الكاميرات](#2-فيديوهات-تجربة-تحليل-الكاميرات)
@@ -301,6 +303,8 @@ CPS-Project/
 **Rased Platform** is this repository: one platform, one dashboard at http://localhost:8010.
 The CPS backend (port 8001) runs in the background and is read only through the platform; there is
 no separate CPS dashboard. Start with `start-cps.bat`; full guide in [`RUN_FROM_ZERO.md`](RUN_FROM_ZERO.md).
+A hosted copy runs at https://rased-ivory.vercel.app (dashboard on Vercel, server and models on the Hugging Face
+Space `Ahmed014/rased`); see [`deploy/README.md`](deploy/README.md).
 
 **Demo videos** are in `samples/`. In *Cameras & AI*, use a camera tile's **Attach video** button to
 play `fire_bin_crowd.mp4`, `fire_shop_smoke.mp4`, `crowd_indoor_event.mp4` or `test_scene.mp4` as a

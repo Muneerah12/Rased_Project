@@ -16,6 +16,7 @@ import type { AiCamera, AiStatus, AppState } from '../model/types';
 import { initialState } from '../model/fixtures';
 import { reducer } from '../model/reducer';
 import { setTimeBase } from '../model/config';
+import { apiUrl, apiWsUrl } from './apiBase';
 import type { ThermalReading } from '../model/types';
 
 export interface Det { model: string; label: string; score: number; box: [number, number, number, number]; status?: string; temp_c?: number }
@@ -86,7 +87,7 @@ class AiEngine {
   soundOn = true;
   version = 0;
 
-  /** same-origin server unless the page is opened from disk */
+  /** the configured server (same origin by default) unless the page is opened from disk */
   get available(): boolean {
     return typeof location !== 'undefined' && /^https?:$/.test(location.protocol);
   }
@@ -103,9 +104,8 @@ class AiEngine {
 
   // ------------------------------------------------------------------ connection
   private connect(): void {
-    const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     let ws: WebSocket;
-    try { ws = new WebSocket(`${proto}://${location.host}/api/ws`); } catch { this.scheduleReconnect(); return; }
+    try { ws = new WebSocket(apiWsUrl('/api/ws')); } catch { this.scheduleReconnect(); return; }
     this.ws = ws;
     ws.onmessage = (m) => {
       let msg: any;
@@ -300,7 +300,7 @@ class AiEngine {
     delete this.frames[id];
     this.emit();
   }
-  mjpegUrl(id: string): string { return `/api/cameras/${id}/mjpeg?c=${CLIENT_ID}`; }
+  mjpegUrl(id: string): string { return apiUrl(`/api/cameras/${id}/mjpeg?c=${CLIENT_ID}`); }
 
   // ------------------------------------------------------------------ browser sources
   async listCameras(): Promise<MediaDeviceInfo[]> {

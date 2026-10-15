@@ -1,0 +1,15 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+ultralytics>=8.4.0
+huggingface_hub>=0.26.0
+python-multipart>=0.0.12
+opencv-python-headless>=4.10.0,<5
+pillow>=10.4.0
+numpy>=1.26.0
+requests>=2.31.0
+dill>=0.3.0
+transformers>=5.0
+av>=12.0
+sqlalchemy
+pwdlib[argon2]
+python-dotenv

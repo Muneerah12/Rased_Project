@@ -8,6 +8,7 @@ import { fmtDuration } from '../model/config';
 import type { Incident } from '../model/types';
 import { RESPONDER_STEPS } from '../model/types';
 import { can, incidentVisible } from '../services/permissions';
+import { apiUrl } from '../services/apiBase';
 import { alertTitle, LABELS } from './labels';
 import {
   AlertStatusBadge, Btn, Card, Chip, ELink, Empty, EmpStatusBadge, Field, IncidentStatusBadge, Ltr, Restricted, SevBadge, SimTag, Time,
@@ -96,8 +97,8 @@ export function EvidenceList({ inc }: { inc: Incident }) {
             </button>
             {isOpen && (
               <div className="evbody">
-                {ev.mediaUrl && ev.mediaType?.startsWith('video') && <video src={ev.mediaUrl} controls className="media" />}
-                {ev.mediaUrl && ev.mediaType?.startsWith('image') && <a href={ev.mediaUrl} target="_blank" rel="noreferrer"><img src={ev.mediaUrl} alt={tl(ev.label)} className="media evidence-snap" /></a>}
+                {ev.mediaUrl && ev.mediaType?.startsWith('video') && <video src={apiUrl(ev.mediaUrl)} controls className="media" />}
+                {ev.mediaUrl && ev.mediaType?.startsWith('image') && <a href={apiUrl(ev.mediaUrl)} target="_blank" rel="noreferrer"><img src={apiUrl(ev.mediaUrl)} alt={tl(ev.label)} className="media evidence-snap" /></a>}
                 {!ev.mediaUrl && ev.kind === 'drone_feed' && inc.pos && <AerialFeed center={inc.pos} t={ev.t} droneId={ev.sourceId} />}
                 {!ev.mediaUrl && (ev.kind === 'camera_frame' || ev.kind === 'camera_clip') && cam && (
                   <CameraView live={false} cameraId={cam.id} name={tl(cam.label)} online analyzing t={ev.t} compact count={inc.category === 'crowding' ? Number(s.events.find((e) => e.id === inc.eventId)?.peakCount ?? 0) : null}

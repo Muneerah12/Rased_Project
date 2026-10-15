@@ -1,4 +1,5 @@
 // AI Threat & Abnormal Behavior Detection add-on: client for /api/threat/* (server/threat).
+import { apiUrl } from './apiBase';
 
 export type ThreatKind = 'weapon' | 'gunshot' | 'violence' | 'running' | 'intrusion';
 export type Box = [number, number, number, number];
@@ -54,4 +55,4 @@ export async function rerunZones(jobId: string): Promise<void> {
   if (!r.ok) throw new Error((await r.json().catch(() => ({})))?.detail ?? `HTTP ${r.status}`);
 }
 
-export const reportUrl = (jobId: string) => `/api/threat/jobs/${encodeURIComponent(jobId)}/report`;
+export const reportUrl = (jobId: string) => apiUrl(`/api/threat/jobs/${encodeURIComponent(jobId)}/report`);

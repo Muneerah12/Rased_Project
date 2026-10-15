@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAi, useStore, useUI } from '../state/store';
 import { can } from '../services/permissions';
+import { apiUrl } from '../services/apiBase';
 import type { JobResult } from '../services/ai';
 import type { ThreatAlert, ThreatBox, ThreatJob, ThreatKind, Zone } from '../services/threat';
 import { fetchThreatJob, reportUrl, rerunZones, saveZones } from '../services/threat';
@@ -168,7 +169,7 @@ export function ThreatResults({ jobId }: { jobId: string }) {
       </div>
 
       <div className={`thr-player${drawing ? ' drawing' : ''}`}>
-        <video ref={video} src={job.video_url} controls preload="metadata" onTimeUpdate={(e: { currentTarget: HTMLVideoElement }) => setCur(e.currentTarget.currentTime)} onSeeked={(e: { currentTarget: HTMLVideoElement }) => setCur(e.currentTarget.currentTime)} />
+        <video ref={video} src={apiUrl(job.video_url)} controls preload="metadata" onTimeUpdate={(e: { currentTarget: HTMLVideoElement }) => setCur(e.currentTarget.currentTime)} onSeeked={(e: { currentTarget: HTMLVideoElement }) => setCur(e.currentTarget.currentTime)} />
         <canvas ref={canvas} onClick={onCanvasClick} aria-hidden="true" />
       </div>
 
@@ -188,7 +189,7 @@ export function ThreatResults({ jobId }: { jobId: string }) {
         const sev = SEV[a.severity] ?? SEV.high;
         return (
           <div key={a.event_id} className={`thr-ev sev-${a.severity}`}>
-            {a.snapshot_url && <a href={a.snapshot_url} target="_blank" rel="noreferrer"><img src={a.snapshot_url} alt={T('لقطة الرصد', 'Detection snapshot')} /></a>}
+            {a.snapshot_url && <a href={apiUrl(a.snapshot_url)} target="_blank" rel="noreferrer"><img src={apiUrl(a.snapshot_url)} alt={T('لقطة الرصد', 'Detection snapshot')} /></a>}
             <div className="dstack">
               <span><strong>{T(KIND[a.kind][0], KIND[a.kind][1])}</strong> <Chip tone={sev[2]}>{T(sev[0], sev[1])}</Chip></span>
               <span className="muted">{a.labels.map((l) => T((LABEL[l] ?? [l, l])[0], (LABEL[l] ?? [l, l])[1])).join(T('، ', ', '))}{a.zone_name ? ` · ${a.zone_name}` : ''}</span>
