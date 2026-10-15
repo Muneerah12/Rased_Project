@@ -1,0 +1,22 @@
+server/.venv/
+server/.env
+server/data/
+server/*.pt
+server/__pycache__/
+web/node_modules/
+
+# Secrets, local databases and generated environments (any directory)
+.env
+.env.*
+!.env.example
+**/secrets.h
+*.db
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+node_modules/

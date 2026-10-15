@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pwdlib[argon2]
+python-dotenv
+pytest
+httpx
+trustme
+requests

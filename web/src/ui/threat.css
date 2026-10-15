@@ -1,0 +1,27 @@
+/* AI Threat & Abnormal Behavior Detection add-on — styles scoped under .thr (existing styles untouched). */
+.thr { --thr-weapon: #c62828; --thr-gunshot: #8e24aa; --thr-violence: #ad1457; --thr-running: #ef6c00; --thr-intrusion: #d81b60; }
+.thr .thr-stages { display: flex; flex-wrap: wrap; gap: 6px; }
+.thr .thr-player { position: relative; width: 100%; background: #000; border-radius: 8px; overflow: hidden; }
+.thr .thr-player video { display: block; width: 100%; max-height: 420px; }
+.thr .thr-player canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.thr .thr-player.drawing canvas { pointer-events: auto; cursor: crosshair; }
+.thr .thr-tl { position: relative; height: 40px; border-radius: 6px; background: var(--surface-3); overflow: hidden; direction: ltr; }
+.thr .thr-tl .band { position: absolute; top: 4px; bottom: 16px; min-width: 4px; border-radius: 4px; cursor: pointer; opacity: .9; border: 0; padding: 0; }
+.thr .thr-tl .band:hover, .thr .thr-tl .band:focus-visible { opacity: 1; outline: 2px solid var(--text); }
+.thr .thr-tl .head { position: absolute; top: 0; bottom: 14px; width: 2px; background: var(--text); pointer-events: none; }
+.thr .thr-tl .tick { position: absolute; bottom: 0; font-size: 10px; color: var(--muted); transform: translateX(-50%); pointer-events: none; }
+.thr .k-weapon { background: var(--thr-weapon); } .thr .k-gunshot { background: var(--thr-gunshot); }
+.thr .k-violence { background: var(--thr-violence); } .thr .k-running { background: var(--thr-running); } .thr .k-intrusion { background: var(--thr-intrusion); }
+.thr .thr-ev { display: flex; gap: 12px; align-items: flex-start; padding: 10px; background: var(--surface-2); border-radius: 8px; border-inline-start: 5px solid var(--border-2); flex-wrap: wrap; }
+.thr .thr-ev.sev-critical { border-inline-start-color: var(--crit); } .thr .thr-ev.sev-high { border-inline-start-color: var(--high); }
+.thr .thr-ev.sev-medium { border-inline-start-color: var(--warn); }
+.thr .thr-ev img { width: 200px; max-width: 100%; aspect-ratio: 16/9; object-fit: contain; background: #000; border-radius: 6px; border: 1px solid var(--border); }
+.thr .thr-ev .dstack { flex: 1 1 220px; min-width: 0; }
+.thr .thr-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: middle; margin-inline-end: 4px; }
+.thr .thr-legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--muted); }
+.thr .thr-zones li { display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid var(--border); }
+.thr .thr-zone-form { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.thr .thr-zone-form input { flex: 1 1 180px; min-width: 0; padding: 6px 10px; border: 1px solid var(--border-2); border-radius: 6px; background: var(--surface); color: var(--text); }
+.thr-upload { display: grid; grid-template-columns: minmax(0, 1fr) minmax(160px, 240px); gap: 10px; align-items: end; }
+#thr-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+@media (max-width: 700px) { .thr-upload { grid-template-columns: minmax(0, 1fr); } }

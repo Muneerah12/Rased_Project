@@ -1,0 +1,23 @@
+{
+    admin 127.0.0.1:2019
+    persist_config off
+    auto_https disable_redirects
+}
+
+https://{{HOST_IP}}:8443 {
+    bind {{HOST_IP}}
+    tls certs/node04.crt certs/node04.key
+
+    @ingestion {
+        method POST
+        path /heartbeat /readings
+    }
+
+    handle @ingestion {
+        reverse_proxy 127.0.0.1:8013
+    }
+
+    handle {
+        respond "Not found" 404
+    }
+}

@@ -1,0 +1,14 @@
+/* Per-camera crowd counter colours and the heat-map toggle on live camera views. */
+.cv-count { padding: 1px 8px; border-radius: 999px; }
+.cv-count.cap-ok { background: rgba(31, 157, 91, .85); }
+.cv-count.cap-warn { background: rgba(199, 134, 10, .9); }
+.cv-count.cap-crit { background: rgba(210, 58, 63, .95); animation: cv-pulse 1.2s ease-in-out infinite; }
+@keyframes cv-pulse { 50% { box-shadow: 0 0 0 4px rgba(210, 58, 63, .35); } }
+@media (prefers-reduced-motion: reduce) { .cv-count.cap-crit { animation: none; } }
+.cv-heat { border: 1px solid rgba(255, 255, 255, .45); background: rgba(0, 0, 0, .35); color: #fff; border-radius: 999px; padding: 1px 9px; font: inherit; font-size: 11px; cursor: pointer; }
+.cv-heat.on { background: linear-gradient(90deg, #2a5aff, #00dcdc, #ffe600, #ff2814); border-color: transparent; color: #111; font-weight: 600; }
+.cv-heat:focus-visible { outline: 2px solid #fff; outline-offset: 1px; }
+.cam-cap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.cam-cap input, .cam-pop .cam-cap input { flex: 0 0 96px; width: 96px; padding: 5px 8px; border: 1px solid var(--border-2); border-radius: 6px; background: var(--surface); color: var(--text); }
+.cam-audio { margin: 0; padding: 4px 12px 8px; }
+.cam-audio.hit { color: var(--crit); font-weight: 600; }
