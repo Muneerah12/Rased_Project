@@ -15,6 +15,7 @@ import { RiyadhSky, SensorTile } from './LiveVisuals';
 import type { SensorKind } from './LiveVisuals';
 import { HeartbeatAge, HeartbeatBadge, HeartbeatPulse } from './HeartbeatPulse';
 import { HvacIntelligence } from '../pages/IoT';
+import { DEMO_CPS } from '../services/demoCps';
 import './cpsWorkspace.css';
 
 export { CPS_WORKSPACE_TABS };
@@ -67,6 +68,7 @@ export function CpsWorkspace() {
   const registry = useMemo(() => cameraRegistryFromHost(s.ai.connected, s.ai.cameras), [s.ai.connected, s.ai.cameras]);
   const tabs = CPS_WORKSPACE_TABS.map((item) => ({ id: item.id, label: T(item.label.ar, item.label.en) }));
   return <section className="cps-workspace" dir={ui.lang === 'ar' ? 'rtl' : 'ltr'} aria-label={T('مساحة عمليات CPS', 'CPS Operations workspace')}>
+    {DEMO_CPS && <p className="fine"><Chip tone="warn">{T('بيانات عرض تجريبية', 'Demo data')}</Chip> {T('قراءات NODE-04 والتكييف والطائرات في هذه الصفحة مولّدة للعرض وليست من الأجهزة الفعلية.', 'NODE-04 readings, HVAC and drones on this page are generated for the demo, not taken from the physical devices.')}</p>}
     <Tabs label={T('أنظمة CPS', 'CPS systems')} value={tab} onChange={setTab} tabs={tabs} />
     {tab === 'overview' && <CpsOverview cps={cps} registry={registry} lang={ui.lang} />}
     {tab === 'ot' && <CpsOt cps={cps} heartbeats={heartbeats} lang={ui.lang} />}
@@ -81,7 +83,9 @@ function CpsOverview({ cps, registry, lang }: { cps: CpsLoad; registry: ReturnTy
     <div className="kpis cpsw-kpis">
       <Kpi label={T('العقد المادية CPS', 'Physical CPS nodes')} glyph="router" value={state ? formatNumber(1) : T('غير متاح', 'Unavailable')} sub={state ? <><Ltr>NODE-04</Ltr> · {state.connection_status}</> : T('لا توجد بيانات CPS موثقة', 'No verified CPS data')} tone={connectionTone(state?.connection_status)} art={<NodeArt online={state?.connection_status === 'ONLINE'} />} />
       <Kpi label={T('كاميرات مسجلة', 'Registered cameras')} art={<CameraArt active={!!active && active > 0} />} glyph="cameras" value={registry.available ? formatNumber(registry.cameras.length) : T('غير متاح', 'Unavailable')} sub={active === null ? T('سجل الكاميرات غير متاح', 'Camera registry unavailable') : <><Ltr>{formatNumber(active)}</Ltr> {T('التقاط نشط', 'active capture')}</>} tone={active && active > 0 ? 'ok' : registry.available ? 'warn' : 'neutral'} />
-      <Kpi label={T('الطائرات التشغيلية', 'Operational drones')} art={<DroneArt />} glyph="drone" value={<span className="kpi-word">{T('خارج الخدمة', 'Out of service')}</span>} sub={T('لا يوجد جرد تشغيلي موثّق للطائرات', 'No verified operational drone inventory')} tone="neutral" />
+      {DEMO_CPS
+        ? <Kpi label={T('الطائرات التشغيلية', 'Operational drones')} art={<DroneArt />} glyph="drone" value={formatNumber(3)} sub={T('من 4 طائرات جاهزة · عرض تجريبي', 'of 4 drones ready · demo')} tone="ok" />
+        : <Kpi label={T('الطائرات التشغيلية', 'Operational drones')} art={<DroneArt />} glyph="drone" value={<span className="kpi-word">{T('خارج الخدمة', 'Out of service')}</span>} sub={T('لا يوجد جرد تشغيلي موثّق للطائرات', 'No verified operational drone inventory')} tone="neutral" />}
     </div>
      <CpsSensorSummary cps={cps} lang={lang} withWeather />
      <div className="cpsw-overview-secondary">
@@ -101,7 +105,7 @@ function CpsSensorSummary({ cps, lang, nodeScoped = false, withWeather = false }
   if (!state) return <Card title={T('ملخص حساس CPS', 'CPS sensor summary')} icon="thermo" actions={<Btn small onClick={cps.refresh}>{T('إعادة المحاولة', 'Retry')}</Btn>}><Empty icon="thermo" title={T('بيانات CPS غير متاحة', 'CPS data unavailable')}><p className="fine">{cps.error}</p></Empty></Card>;
   const historical = state.connection_status !== 'ONLINE';
   return <Card className={`cpsw-sensor-summary${withWeather ? ' with-weather' : ''}`} title={withWeather ? T('الداخل والخارج', 'Inside & outside') : T('ملخص حساس CPS', 'CPS sensor summary')} icon="thermo" sub={nodeScoped ? undefined : <Ltr>NODE-04</Ltr>} actions={<button type="button" className={`btn b-default sm sn-refresh${refreshing ? ' spinning' : ''}`} onClick={refreshAll} disabled={refreshing} title={withWeather ? T('تحديث قراءات الحساس والطقس', 'Refresh sensor readings and weather') : T('تحديث قراءات الحساس', 'Refresh sensor readings')}><Icon name="refresh" size={14} />{refreshing ? T('جارٍ التحديث', 'Refreshing') : T('تحديث', 'Refresh')}</button>}>
-    <p className={historical ? 'warnline' : 'fine'}>{!nodeScoped && <><Chip tone={connectionTone(state.connection_status)}>{state.connection_status}</Chip> </>}{historical ? T('قراءات محفوظة تاريخياً وليست مباشرة.', 'Stored historical readings — not live.') : T('قراءات CPS موثقة.', 'Verified CPS readings.')}</p>
+    <p className={historical ? 'warnline' : 'fine'}>{!nodeScoped && <><Chip tone={connectionTone(state.connection_status)}>{state.connection_status}</Chip> </>}{historical ? T('قراءات محفوظة تاريخياً وليست مباشرة.', 'Stored historical readings — not live.') : DEMO_CPS ? T('قراءات عرض تجريبية.', 'Demo readings.') : T('قراءات CPS موثقة.', 'Verified CPS readings.')}</p>
     <div className="sn-grid">
       {(['temperature', 'humidity', 'pressure'] as const).map((kind) => { const reading = latest(state, kind); return <SensorTile key={kind} kind={kind} T={T} live={!historical}
         label={kind === 'temperature' ? T('درجة الحرارة', 'Temperature') : kind === 'humidity' ? T('الرطوبة', 'Humidity') : T('الضغط', 'Pressure')}
@@ -280,7 +284,9 @@ function CpsOt({ cps, heartbeats, lang }: { cps: CpsLoad; heartbeats: ReturnType
 function CpsRealOperations({ cps, heartbeats, lang }: { cps: CpsLoad; heartbeats: ReturnType<typeof useHeartbeats>; lang: 'ar' | 'en' }) {
   const { T } = useUI();
   return <div className="cpsw-stack">
-    <p className="fine"><Chip tone="info">{T('بيانات CPS فعلية', 'Real CPS data')}</Chip> {T('تُعرض البيانات الموثقة فقط؛ حالة المرحل للمراقبة ولا يوجد تحكم.', 'Only verified CPS data is shown; relay state is monitoring-only and has no control.')}</p>
+    {DEMO_CPS
+      ? <p className="fine"><Chip tone="warn">{T('بيانات عرض تجريبية', 'Demo data')}</Chip> {T('قراءات مولّدة للعرض بنفس صيغة NODE-04؛ حالة المرحل للمراقبة ولا يوجد تحكم.', 'Readings generated for the demo in the NODE-04 format; relay state is monitoring-only and has no control.')}</p>
+      : <p className="fine"><Chip tone="info">{T('بيانات CPS فعلية', 'Real CPS data')}</Chip> {T('تُعرض البيانات الموثقة فقط؛ حالة المرحل للمراقبة ولا يوجد تحكم.', 'Only verified CPS data is shown; relay state is monitoring-only and has no control.')}</p>}
     <HvacIntelligence />
     <CpsTechnicalDetails cps={cps} heartbeats={heartbeats} lang={lang} />
   </div>;
