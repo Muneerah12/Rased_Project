@@ -2,18 +2,18 @@
 
 > Platform-wide setup (CPS backend, RASID server, dashboard, ESP32 HTTPS or HTTP path): see `RUN_FROM_ZERO.md` in the repository root. The integrated architecture is in `01_Architecture_and_Concepts.md` section 18.
 
-This document describes the current CPS codebase and gives a colleague a local setup path before AI/CPS integration. It records the implementation as it exists; the target platform architecture is not implemented here.
+This document describes the CPS backend inside the **Rased Platform**. The only user interface is the Rased Platform dashboard (`web/`, served by the RASID server at http://localhost:8010); the former standalone CPS dashboard (the admin-token web app) was removed. Sections below that describe the CPS backend alone predate the integration; for running the platform, follow `RUN_FROM_ZERO.md`.
 
 ## 1. Project overview
 
-CPS is a prototype for collecting environmental sensor readings from ESP32 nodes, checking reading integrity, tracking node connectivity, and presenting the resulting data in a React dashboard.
+CPS is a prototype for collecting environmental sensor readings from ESP32 nodes, checking reading integrity, tracking node connectivity, and exposing the resulting data to the Rased Platform through a read-only integration API.
 
 Implemented in the current source:
 
 - FastAPI endpoints for node provisioning/lifecycle, authenticated sensor readings and heartbeats, location catalogue/assignment, and paginated history.
 - Per-node device credential verification, node revocation/reactivation, timestamp validation, reading integrity assessment, and ONLINE/STALE/OFFLINE status derived from server heartbeat receipt time.
 - SQLAlchemy models backed by SQLite, including location snapshots on new readings.
-- A React/TypeScript dashboard that polls backend node, location, reading, and heartbeat APIs.
+- A read-only integration API used by the Rased Platform server; operators use the Rased Platform dashboard, not a separate CPS UI.
 - A simulator that generates synthetic sensor readings and posts them to the backend.
 - PlatformIO firmware project for an ESP32 with a BME280 sensor, included in this repository under `esp32/`.
 
@@ -30,8 +30,8 @@ ESP32 firmware
 FastAPI
     ↓ schema/authentication/integrity validation
 SQLite
-    ↓ protected read APIs
-React dashboard
+    ↓ read-only integration API (token)
+Rased Platform server → Rased Platform dashboard
 
 Simulator ── HTTPS with certificate verification ──> FastAPI
 ```
@@ -50,8 +50,7 @@ The platform Decision Engine is expected to combine AI events and CPS state unde
 
 ## 3. Repository structure
 
-- `backend/` — FastAPI application, SQLAlchemy models/database setup, reading-integrity logic, weather provider protocol, requirements, and tests. The runtime SQLite path is `backend/cps.db`; the file is local/generated and ignored by Git.
-- `frontend/` — React/TypeScript/Vite dashboard, API client, polling hook, screens, and npm manifests.
+- `backend/` — FastAPI application, SQLAlchemy models/database setup, reading-integrity logic, weather provider protocol, requirements, and tests. The SQLite database is `backend/cps.db`; the Rased Platform repository includes it (force-added despite the `*.db` ignore rule) so a clone has the recorded NODE-04 history.
 - `simulator/` — current synthetic telemetry simulator and a legacy simulator copy if present in the checkout.
 - `esp32/` — PlatformIO project for the ESP32/BME280 firmware, including `platformio.ini`, firmware source, and a sanitized secrets template. Local credentials and machine-specific settings are excluded.
 - `docs/` — project concepts, implementation/testing logs, status, security requirements, and this handoff.
@@ -65,12 +64,9 @@ The ESP32 PlatformIO project is included in this repository under `esp32/`. Its 
 The GitHub repository contains the committed CPS baseline. The audited local workspace may contain additional uncommitted or untracked files; those files are not part of a clean clone unless they are committed later. At the time of this audit, the local workspace additionally contains:
 
 - `backend/manual_cross_node_manual.py`
-- `frontend/src/data/`
 - `simulator/simulator_before_offline_buffer.py`
 
-These are local workspace artifacts, not setup prerequisites. Do not copy them into a clean clone. The handoff's current-frontend observations describe the audited working tree and may differ from the committed baseline until its outstanding changes are committed.
-
-`frontend/src/data/mockDashboardData.ts` is currently untracked and, according to the audit, its mock exports are not imported or used by the current frontend. It is not part of clean-clone setup.
+These are local workspace artifacts, not setup prerequisites. Do not copy them into a clean clone.
 
 ## 4. Required software and dependencies
 
@@ -90,16 +86,9 @@ The repository does not pin a Python version. Backend source syntax requires Pyt
 
 Pydantic is imported directly by the application and comes through FastAPI's dependency graph; it is not separately declared in `requirements.txt`. The application uses Pydantic v2's `field_validator`. No standalone package versions are specified, so do not assume a lockfile or pinned backend environment exists.
 
-### Frontend
+### Dashboard
 
-The project has `package-lock.json`; use a Node/npm installation compatible with the lockfile. The manifest does not declare a top-level `engines` value. Vite 8's lockfile package metadata requires Node `^20.19.0 || >=22.12.0`; use a supported Node version and its bundled npm. Install from `frontend/` with `npm install` (or `npm ci` when a clean lockfile install is desired).
-
-Declared dependencies from `frontend/package.json`:
-
-- Runtime: `react` `^19.2.8`, `react-dom` `^19.2.8`.
-- Development/build: `@types/node` `^24.13.3`, `@types/react` `^19.2.18`, `@types/react-dom` `^19.2.7`, `@vitejs/plugin-react` `^6.1.1`, `oxlint` `^1.81.0`, `typescript` `~6.0.2`, `vite` `^8.3.0`.
-
-These are manifest ranges, not a claim about the exact versions installed on another developer's machine. `package-lock.json` records resolved packages.
+There is no separate CPS frontend. The dashboard is the Rased Platform web app in `web/` (React + TypeScript), served by the RASID server; its built bundle is committed in `web/dist`. To rebuild or develop it, see `RUN_FROM_ZERO.md` section 8.
 
 ### ESP32 firmware
 
@@ -181,19 +170,9 @@ The tests use isolated test databases/fixtures for their cases; do not treat the
 
 The HTTP backend command above supports local dashboard/backend development. It does **not** support the current simulator, which rejects HTTP backend URLs and requires HTTPS.
 
-## 6. Frontend setup
+## 6. Dashboard
 
-Open a second PowerShell terminal. Change to the cloned repository root first, regardless of the terminal's initial directory:
-
-```powershell
-Set-Location "<path-to-cloned-repository>"
-Set-Location .\frontend
-npm install
-npm run dev -- --host 0.0.0.0
-npm run build
-```
-
-Vite prints its development URL (usually `http://localhost:5173`). `--host 0.0.0.0` makes it reachable from other devices on the local network; use only on a trusted development network. The frontend calls relative API paths. `frontend/vite.config.ts` proxies `/nodes`, `/locations`, `/readings`, and `/heartbeats` to `VITE_CPS_API_TARGET`; it defaults to `http://127.0.0.1:8000`. To target another local backend, create a local frontend environment file such as `.env.local` containing `VITE_CPS_API_TARGET=http://127.0.0.1:8000`, then restart Vite. Do not put credentials in Vite environment variables: `VITE_` values are intended for browser-visible configuration. The current proxy list does not include `/weather` because the frontend does not currently call that endpoint. `npm run build` runs TypeScript project checks and the Vite production build.
+The CPS backend has no user interface of its own. Start the Rased Platform (`start-cps.bat`, or the manual steps in `RUN_FROM_ZERO.md`) and open http://localhost:8010 → IoT / CPS. The RASID server reads CPS through the read-only integration API with `CPS_RASID_INTEGRATION_TOKEN`; no admin token is entered in the browser.
 
 ## 7. ESP32 setup
 
@@ -216,7 +195,7 @@ Vite prints its development URL (usually `http://localhost:5173`). `--host 0.0.0
 
 ### Dashboard/backend local development
 
-Start the HTTP development backend as described in section 5, then Vite as described in section 6. This supports local dashboard/backend work.
+Start the CPS backend as described in section 5 and the Rased Platform server as described in `RUN_FROM_ZERO.md`, then open http://localhost:8010.
 
 ### Simulator ingestion
 
@@ -239,12 +218,12 @@ The simulator sends readings only, not heartbeats. To verify heartbeat handling,
 ### Verification pointers
 
 - **Backend health:** request `GET /`; expect the fixed running message. This is not a deep database or dependency health check.
-- **Frontend:** open the Vite URL; provide the local admin token in the dashboard gate. The UI keeps it in page memory and sends `X-Admin-Token` for protected requests.
+- **Dashboard:** open http://localhost:8010 → IoT / CPS; NODE-04 state, readings and heartbeats come through the RASID server.
 - **Readings:** after authenticated ingestion, inspect `GET /readings` or the dashboard Readings screen. Ingestion returns a reading ID and validation fields.
 - **Heartbeat:** after a device heartbeat, inspect `GET /heartbeats`. The simulator sends readings only; it does not currently send heartbeats.
 - **Node status:** inspect `GET /nodes` or node details. Status is based on server receipt time: ONLINE up to 30 seconds, STALE through 90 seconds, then OFFLINE. Only ACTIVE nodes with heartbeat receipt data can become online/stale.
 - **Location:** `GET /locations` lists the location catalogue. The migration seeds 64 subzones and marks only A1-1 deployed; NODE-03 has a one-time migration assignment to A1-1. Do not change this mapping without agreement.
-- **Database:** runtime database is `backend/cps.db`, created/updated by backend initialization and ignored by Git. The audited developer workspace also has an ignored root `cps.db`; this is only an observation about that local workspace, not a required file. Do not copy it into a clean clone. A clean clone initializes its own database through backend initialization. Do not delete or regenerate an existing local database without the data owner's approval.
+- **Database:** `backend/cps.db` is included in the Rased Platform repository with the recorded NODE-04 history; backend initialization migrates it in place. Do not delete or regenerate it without the data owner's approval.
 
 ## 9. Current API inventory
 
@@ -332,7 +311,7 @@ or weaken existing endpoint authentication as part of this integration.
 ## 10. Authentication to preserve during development
 
 - **`X-Device-Credential`:** authenticates a registered node for `POST /readings` and `POST /heartbeat`. Device authentication remains required. Node ID alone is not authentication, and a device credential cannot authorize admin/data-read APIs.
-- **`X-Admin-Token`:** current shared token for standalone CPS administration and dashboard reads. It is a temporary standalone CPS administration mechanism and is expected to be replaced by platform authentication during merge. **Do not remove it now.** Until replacement is implemented and verified, keep protected endpoints protected.
+- **`X-Admin-Token`:** shared token for CPS administration API calls (node provisioning, revoke/reactivate, location assignment); it is not used by the Rased Platform dashboard. It is a temporary administration mechanism and is expected to be replaced by platform authentication during merge. **Do not remove it now.** Until replacement is implemented and verified, keep protected endpoints protected.
 - **`X-Rasid-Integration-Token`:** dedicated server-to-server credential for only `GET /api/v1/integration/nodes/{node_id}/state` and `GET /api/v1/integration/nodes/{node_id}/heartbeats`; the current allowlist permits only `NODE-04`. It is not accepted by any other route.
 - **`X-Rasid-Control-Token`:** separate server-to-server credential for the
   non-actuating NODE-04 command foundation only. It cannot read integration
@@ -426,7 +405,7 @@ Action service → authorized actuator control
 1. Clone this repository and inspect the current working tree/baseline.
 2. Install dependencies using the manifests and the setup instructions above.
 3. Start the backend with a local `.env` token.
-4. Start the frontend and verify it reaches the local backend.
+4. Start the Rased Platform server and verify http://localhost:8010 → IoT / CPS shows NODE-04.
 5. Run the backend test suite and record the result for that checkout.
 6. Read the API inventory and inspect current request/response schemas in Swagger/source.
 7. Confirm the CPS baseline with an authorized test node or simulator; account for simulator-only HTTPS and firmware HTTP behavior.
@@ -478,7 +457,7 @@ Action service → authorized actuator control
 ### Clean-clone verification checklist
 
 - **Backend:** install requirements in Python 3.10+; confirm the backend starts with a local admin token; confirm `/docs` or `/openapi.json` is reachable; run `python -m pytest` from `backend/` (or use the venv's Python executable directly if activation is unavailable).
-- **Frontend:** run `npm install`, `npm run build`, and confirm the dashboard loads against the local backend.
+- **Dashboard:** start the Rased Platform and confirm http://localhost:8010 → IoT / CPS shows NODE-04.
 - **ESP32:** confirm the PlatformIO build succeeds after creating the local secrets file; verify real secrets are not committed.
 - **Simulator:** claim successful ingestion only when an HTTPS backend and trusted certificate/CA are actually available, and `NODE-01` has a valid provisioned device credential.
 

@@ -1,9 +1,28 @@
-# راصد + موديلات الذكاء الاصطناعي (lama YOLO)
+# منصة راصد · Rased Platform
 
-> **التشغيل من الصفر:** راجع [`RUN_FROM_ZERO.md`](RUN_FROM_ZERO.md) — تثبيت الأدوات، ملفات الأسرار، تشغيل CPS وراصد، ربط ESP32، والتحقق.
-> **Run from zero:** see [`RUN_FROM_ZERO.md`](RUN_FROM_ZERO.md). Architecture, logs, status and security: `CPS-Project/docs/01`–`06`.
+**هذا المستودع هو منصة راصد كاملة** — منصة واحدة بلوحة تحكم واحدة على **http://localhost:8010**.
+لا يوجد أي واجهة أخرى لتثبيتها أو فتحها.
 
-واجهة **راصد** مربوطة بموديلات مشروع **lama-main**. الكاميرات والتحليل والحوادث والإشعارات كلها حقيقية وتشتغل مع بعض.
+| الجزء | المجلد | الدور |
+| --- | --- | --- |
+| خادم راصد + الذكاء الاصطناعي | `server/` | تحليل الكاميرات، الحوادث، التنبيهات، التكييف، مراقبة NODE-04 |
+| لوحة تحكم راصد | `web/` | الواجهة الوحيدة للمنصة (تُخدَم من الخادم على 8010) |
+| خادم CPS | `CPS-Project/backend/` | يستقبل بيانات حساس ESP32 (NODE-04) ويحفظ السجل التاريخي — يعمل في الخلفية بدون واجهة |
+| جهاز ESP32 | `CPS-Project/esp32/` | الحساس الفعلي في المنطقة A1.1 |
+
+**التشغيل:** شغّل `start-cps.bat` ثم افتح http://localhost:8010 — التفاصيل الكاملة في
+[`RUN_FROM_ZERO.md`](RUN_FROM_ZERO.md). الهيكل والسجلات والأمان: `CPS-Project/docs/01`–`06`.
+
+> **Rased Platform** is this repository: one platform, one dashboard at http://localhost:8010.
+> The CPS backend runs in the background and is read only through the platform; there is no
+> separate CPS dashboard and no admin-token web app. Start with `start-cps.bat`; full guide in
+> [`RUN_FROM_ZERO.md`](RUN_FROM_ZERO.md).
+
+---
+
+## الكاميرات والذكاء الاصطناعي
+
+الكاميرات والتحليل والحوادث والإشعارات في راصد كلها حقيقية وتشتغل مع بعض.
 
 ```
 كاميرا / فيديو / RTSP ─► موديلات YOLO ─► رصد متكرر ─► حدث ─► تنبيه + حادثة + لقطة ─► إشعار الفريق المختص
@@ -167,8 +186,8 @@ npm test        # اختبارات النموذج ومسار الذكاء الا
 npm run build   # يحدّث web/dist
 ```
 
-### واجهة lama القديمة
-`POST /api/detect` يقبل نفس طلب lama-main بالضبط. أضف `camera_id` لما تبي الرصد يتحول لأحداث وحوادث.
+### واجهة API للرصد
+`POST /api/detect` يستقبل صورة ويرجع نتائج الرصد. أضف `camera_id` لما تبي الرصد يتحول لأحداث وحوادث.
 
 ## MVP live-demo preflight (2026-10-10)
 
@@ -215,7 +234,7 @@ start.bat / start.sh     تشغيل بضغطة
 samples/test_scene.mp4   فيديو تجربة (أشخاص + لهب)
 server/
   main.py               FastAPI: الواجهة، WebSocket، الكاميرات، الفيديو، الإشعارات
-  detectors.py          كواشف lama (أشخاص، دخان، حريق، سقوط، اتجاه) + بدائل OpenCV
+  detectors.py          كواشف YOLO (أشخاص، دخان، حريق، سقوط، اتجاه) + بدائل OpenCV
   models_loader.py      تحميل الموديلات وحالتها
   cameras.py            مصادر الكاميرا: متصفح، RTSP/USB، بث MJPEG
   events.py             تحويل الرصد إلى أحداث + اللقطات

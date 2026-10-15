@@ -1,8 +1,13 @@
-# RASID CPS — Run Everything From Zero
+# Rased Platform — Run Everything From Zero
 
-This guide takes a fresh Windows PC to a running RASID CPS platform: the CPS backend,
-the RASID AI server and dashboard, and the physical ESP32 NODE-04. Commands are for
-PowerShell or Git Bash from the repository root unless stated otherwise.
+This repository is the **Rased Platform** (راصد): one platform with one dashboard at
+**http://localhost:8010**. It is made of the RASID AI server and dashboard (`server/`, `web/`)
+and the CPS backend that receives NODE-04's data (`CPS-Project/backend/`). There is no other
+user interface to install — the CPS backend runs in the background and is read only through
+the Rased Platform.
+
+This guide takes a fresh Windows PC to a running Rased Platform, including the physical ESP32
+NODE-04. Commands are for PowerShell or Git Bash from the repository root unless stated otherwise.
 
 ---
 
@@ -58,7 +63,6 @@ CPS-Project/
   backend/                     CPS FastAPI service, models, tests, cps.db (committed snapshot)
   esp32/                       NODE-04 firmware (PlatformIO); include/secrets.h is local only
   gateway/                     HTTPS ingestion path: gateway.py, Caddyfile.example, issue-cert.sh
-  frontend/                    standalone CPS operator UI (React 19, optional)
   simulator/                   software NODE simulator
   docs/                        01–06 architecture, logs, status, security, handoff
 docs/                          MVP notes
